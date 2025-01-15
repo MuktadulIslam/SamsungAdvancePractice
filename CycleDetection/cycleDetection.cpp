@@ -8,23 +8,20 @@
 #define BLACK 3
 using namespace std;
 
-bool dfs(int node, vector<vector<int>> &adj, vector<int> &explore, vector<int> &cycle){
+bool dfs(int node, vector<vector<int>> &adj, vector<int> &explore){
     explore[node] = GRAY;
-    cycle.push_back(node);
     bool  findCycle = false;
     for(int to : adj[node]){
         if(explore[to] == WHITE){
-            findCycle = dfs(to, adj, explore, cycle);
+            findCycle = dfs(to, adj, explore);
             if(findCycle) break;
         }
         else if(explore[to] == GRAY) {
             findCycle = true;
-            cycle.push_back(to);
             break;
         }
     }
     explore[node] = BLACK;
-    if(!findCycle)  cycle.pop_back();
     return findCycle;
 }
 
@@ -39,26 +36,12 @@ int main(void){
     }
 
     bool findCycle = false;
-    vector<int> cycle;
     for(int i=1;i<node;i++){
         if(explore[i] == WHITE) {
-            findCycle = dfs(i, adj, explore, cycle);
+            findCycle = dfs(i, adj, explore);
         }
         if(findCycle)break;
     }
-    if(findCycle){
-        cout << "Found Cycle\n";
-        for(int x: cycle) cout << x << "   ";
-        cout << endl;
-        bool findStart = false;
-        int idx = 0;
-        while(idx<cycle.size()){
-            if(cycle[idx] == cycle[cycle.size()-1]) break;
-            idx++;
-        }
-        idx++;
-        sort(cycle.begin()+idx, cycle.end());
-        for(;idx<cycle.size();idx++) cout << cycle[idx] << "  ";
-    }
+    if(findCycle) cout << "Found Cycle\n";
     else cout <<  "Found No Cycle\n";
 }
