@@ -1,56 +1,33 @@
+// Using Top-Down DP (Memoization) – O(n*n*2^n) Time and O(n*2^n) Space
+
 #include <iostream>
 #include <vector>
 #include <climits>
 #include <cmath>
-
 using namespace std;
-int n;
 
-// Function to solve TSP using Dynamic Programming (Held-Karp)
-int heldKarp(int n, vector<vector<int>> &dist) {
-    // dp[mask][i]: Minimum cost to visit all nodes in 'mask' and end at node 'i'
-    vector<vector<int>> dp(1 << n, vector<int>(n, INT_MAX));
+int totalCost(vector<vector<int>> &cost, int n, int curr, int mask, vector<vector<int>> &memo){
+    if(mask == (1<<n)-1) return cost[curr][0];
+    if(memo[curr][mask] != -1) return memo[curr][mask];
 
-    // Base case: Starting from node 0
-    dp[1][0] = 0;
-
-    // Iterate through all subsets of nodes
-    for (int mask = 1; mask < (1 << n); ++mask) {
-        for (int i = 0; i < n; ++i) {
-            if (!(mask & (1 << i))) continue; // Skip if 'i' is not in 'mask'
-
-            for (int j = 0; j < n; ++j) {
-                if (i == j || !(mask & (1 << j))) continue; // Skip invalid transitions
-
-                int prevMask = mask ^ (1 << i); // Remove 'i' from the current mask
-                dp[mask][i] = min(dp[mask][i], dp[prevMask][j] + dist[j][i]);
-            }
+    int minCost = INT_MAX;
+    for(int i=0; i<n; i++){
+        if((mask & (1<<i)) == 0){
+            minCost = min(minCost, cost[curr][i] + totalCost(cost, n, i, mask | (1<<i), memo));
         }
     }
-
-    // Find the minimum cost of completing the tour
-    int minCost = INT_MAX;
-    for (int i = 1; i < n; ++i) {
-        minCost = min(minCost, dp[(1 << n) - 1][i] + dist[i][0]);
-    }
-
-    return minCost;
+    return memo[curr][mask] = minCost;
 }
 
 int main() {
-    cout << "Enter the number of nodes (N): ";
-    cin >> n;
-
-    vector<vector<int>> dist(n, vector<int>(n));
-    cout << "Enter the distance matrix (NxN):\n";
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            cin >> dist[i][j];
-        }
+    int t;cin>>t;
+    while(t--){
+        int n;cin>>n;
+        vector<vector<int>> cost(n, vector<int>(n));
+        for(int i=0; i<n; i++) for(int j=0; j<n; j++) cin>> cost[i][j];
+        vector<vector<int>> memo(n, vector<int> (1<<n, -1));
+        cout << totalCost(cost, n,0, 1, memo) << endl;
     }
-
-    int result = heldKarp(n, dist);
-    cout << "The minimum cost of the TSP tour is: " << result << endl;
 
     return 0;
 }
