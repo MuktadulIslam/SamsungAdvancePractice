@@ -7,6 +7,7 @@
 using namespace std;
 
 int totalCost(vector<vector<int>> &cost, int n, int curr, int mask, vector<vector<int>> &memo){
+    //cout << "curr= " << curr << "   mask= " << mask << endl;
     if(mask == (1<<n)-1) return cost[curr][0];
     if(memo[curr][mask] != -1) return memo[curr][mask];
 
@@ -16,6 +17,7 @@ int totalCost(vector<vector<int>> &cost, int n, int curr, int mask, vector<vecto
             minCost = min(minCost, cost[curr][i] + totalCost(cost, n, i, mask | (1<<i), memo));
         }
     }
+    //cout << "cost of " << curr << "  " << minCost << endl;
     return memo[curr][mask] = minCost;
 }
 
